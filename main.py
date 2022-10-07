@@ -16,17 +16,17 @@ load_dotenv()
 DATABASE_CONNECTION = os.getenv('DATABASE_CONNECTION')
 cluster = MongoClient(DATABASE_CONNECTION)
 
-#Getting the tables
+#Getting the tables from our test cluster
+db = cluster["test"]
 
 #USERS
-db = cluster["test"]
-users = db["users"]
-users = users.find()
+users_coll = db["users"]
+users = users_coll.find()
 #print(users)  #PyMongo cursos object.
 
 #POSITIONS... note that FTX has an endpoint in Account=> GetPositions
-positions = db["positions"]
-positions = positions.find()
+positions_coll = db["positions"]
+positions = positions_coll.find()
 
 """
 for user in users:
@@ -99,7 +99,7 @@ for obj in coins:
         #print(obj["availableForWithdrawal"])
         USD_VALUE = obj["availableForWithdrawal"]
         """COMMENT THIS OUT!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
-        USD_VALUE = 10.02
+        #USD_VALUE = 15.046
 
 
 
@@ -140,9 +140,14 @@ while NEW_EXTRACTABLE > USD_VALUE:
 
 difference_lost = MAX_EXTRACTABLE - NEW_EXTRACTABLE
 
+print("Users are owed a total of: " + str(MAX_EXTRACTABLE) +"\n")
+
+print("FTX account has a total of: " + str(USD_VALUE) +"\n")
+
+
 print("In this example, we have failed to generate a total of: " + str(difference_lost))
 
-
+print("Fennec can charge the above (in case it's negative)")
 
 
 
@@ -154,7 +159,91 @@ for i in ALL_POSITIONS:
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 #MODIFY USERS table in mongo db BY FinalBalnace !!!!!!!
+
+
+"""
+users_coll = db["users"]
+users = users_coll.find()
+
+    
+for user in users:
+    #print(len(user["Positions"]))
+    if(len(user["Positions"])) > 0:
+        print("User ID: " + str(user["_id"]))
+        
+        for pos in ALL_POSITIONS:
+            if(user["_id"] == pos["User"]):
+                print("Found a position of his !")
+                
+                
+                #ADDING THE AVAILABLE + INTERESTS
+                
+                users_coll.update_one(
+                    {'_id': user["_id"] },
+                    {'$inc': 
+                     {'Available': pos["FinalBalance"]}
+                    }
+                )
+                
+                    
+                #DELETING ALL POSITIONS IN THE MARKET
+                users_coll.update_one(
+                    {'_id': user["_id"] },
+                    {'$set': 
+                     {'Positions':[]}
+                    }
+                )
+                
+    
+"""
     
     
-    
+
+
+
+
+
+#DELETE ALL POSITIONS
+
+"""
+positions_coll = db["positions"]
+
+
+results = positions_coll.delete_many({})
+
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
