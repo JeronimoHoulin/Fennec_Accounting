@@ -1,14 +1,27 @@
-import pymongo
-import os
-import time
-import hmac
+"""
+Code revamped to OKX; 
+unlike backend app that trades on official OKX API, this accounting uses the CCXT
+client for a simple connection. 
 
+Author: @JerryTheKid
+
+"""
+
+#ENV variables
+import os
+
+#CCXT
+import ccxt
+
+#Mongo
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from requests import Request, Session
 
 
 #Connecting to ENV file
+os.getcwd()
+#os.chdir('OneDrive/Desktop/Fennec/Accounting') #Your CWD
+
 load_dotenv()
 
 
@@ -65,45 +78,29 @@ for i in ALL_POSITIONS:
 
 
 
-#Connecting to FTX API
-FTX_API_KEY = os.getenv('FTX_API_KEY')
-FTX_API_SECRET = os.getenv(('FTX_API_SECRET'))
-BASE_URL = "https://ftx.com/api"
+#Connecting to FTX API through CCXT
 
-ts = int(time.time() * 1000)
+OKX_API_KEY = os.getenv('OKX_API_KEY')
+OKX_API_SECRET = os.getenv(('OKX_API_SECRET'))
+OKX_PASSPHRASE = os.getenv(('OKX_PASSPHRASE'))
 
-s = Session()
+exchange = ccxt.okx()
 
-request = Request('GET', F"{BASE_URL}/wallet/balances")
-prepared = request.prepare()
-signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode()
-signature = hmac.new(FTX_API_SECRET.encode(), signature_payload, 'sha256').hexdigest()
+exchange.apiKey = OKX_API_KEY
+exchange.secret = OKX_API_SECRET
+exchange.password = OKX_PASSPHRASE
 
-prepared.headers['FTX-KEY'] = FTX_API_KEY
-prepared.headers['FTX-SIGN'] = signature
-prepared.headers['FTX-TS'] = str(ts)
 
-# Only include line if you want to access a subaccount. Remember to URI-encode the subaccount name if it contains special characters!
-prepared.headers['FTX-SUBACCOUNT'] = 'JerryFut'
-
-response = s.send(prepared)
-data = response.json()
-coins = data["result"]
+trading_balance = exchange.fetch_balance()
 
 
 #GETTING CURRENT USD VALUE
 USD_VALUE = 0
-for obj in coins:
-    #print(obj)
-    if(obj["coin"] == "USD"):
-        #print(obj["availableForWithdrawal"])
-        USD_VALUE = obj["availableForWithdrawal"]
-        """COMMENT THIS OUT!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
-        #USD_VALUE = 15.046
 
-
-
-
+for i in trading_balance["info"]["data"][0]["details"]:
+    if i["ccy"] == "USDC":
+        #print("USD!")
+        USD_VALUE = float(i["availBal"])
 
 
 
@@ -142,23 +139,28 @@ difference_lost = MAX_EXTRACTABLE - NEW_EXTRACTABLE
 
 print("Users are owed a total of: " + str(MAX_EXTRACTABLE) +"\n")
 
-print("FTX account has a total of: " + str(USD_VALUE) +"\n")
+print("OKX account has a total of: " + str(USD_VALUE) +"\n")
 
 
 print("In this example, we have failed to generate a total of: " + str(difference_lost))
 
 print("Fennec can charge the above (in case it's negative)")
 
+print("In case of the above being positive make sure all positions are closed.")
 
 
 
+
+
+#THIS SETS THE CUT PERCENTAGE TO EACH USER.. DONT USE UNLESS AT A PROFIT OR VERY LOW LOSS AND PRINT RSTS
+"""
 
 for i in ALL_POSITIONS:
     i["FinalBalance"] = i["Capital"] * ( 1 + ( (i['dir']/100) * (1-CUT_PRCT) ) )
     
     
     
-    
+"""
     
     
     
@@ -170,6 +172,7 @@ for i in ALL_POSITIONS:
     
     
 #MODIFY USERS table in mongo db BY FinalBalnace !!!!!!!
+
 
 
 """
@@ -206,10 +209,8 @@ for user in users:
                 )
                 
     
-"""
-    
-    
 
+"""
 
 
 
@@ -217,16 +218,18 @@ for user in users:
 #DELETE ALL POSITIONS
 
 """
+
 positions_coll = db["positions"]
 
 
 results = positions_coll.delete_many({})
 
+#Missing delete positions in USER ARRAY !!
+
+
+
 
 """
-
-
-
 
 
 
