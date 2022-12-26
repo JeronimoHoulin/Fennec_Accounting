@@ -37,7 +37,7 @@ users_coll = db["users"]
 users = users_coll.find()
 #print(users)  #PyMongo cursos object.
 
-#POSITIONS... note that FTX has an endpoint in Account=> GetPositions
+#POSITIONS... note that OKX has an endpoint in Account=> GetPositions
 positions_coll = db["positions"]
 positions = positions_coll.find()
 
@@ -78,7 +78,7 @@ for i in ALL_POSITIONS:
 
 
 
-#Connecting to FTX API through CCXT
+#Connecting to OKX API through CCXT
 
 OKX_API_KEY = os.getenv('OKX_API_KEY')
 OKX_API_SECRET = os.getenv(('OKX_API_SECRET'))
@@ -146,7 +146,7 @@ print("In this example, we have failed to generate a total of: " + str(differenc
 
 print("Fennec can charge the above (in case it's negative)")
 
-print("In case of the above being positive make sure all positions are closed.")
+print("If = 0.0 then make sure all positions are closed and proceed with acounting.")
 
 
 
