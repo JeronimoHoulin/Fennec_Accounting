@@ -135,7 +135,7 @@ while NEW_EXTRACTABLE > USD_VALUE:
 
 
 
-difference_lost = MAX_EXTRACTABLE - NEW_EXTRACTABLE
+difference_lost = MAX_EXTRACTABLE - USD_VALUE
 
 print("Users are owed a total of: " + str(MAX_EXTRACTABLE) +"\n")
 
@@ -145,6 +145,7 @@ print("OKX account has a total of: " + str(USD_VALUE) +"\n")
 print("In this example, we have failed to generate a total of: " + str(difference_lost))
 
 print("Fennec can charge the above (in case it's negative)")
+#this not working for 
 
 print("If = 0.0 then make sure all positions are closed and proceed with acounting.")
 
@@ -171,7 +172,7 @@ for i in ALL_POSITIONS:
     
     
     
-#MODIFY USERS table in mongo db BY FinalBalnace !!!!!!!
+#MODIFY USERS table in mongo db BY FinalBalnace       <=           DANGEOURUS
 
 
 
@@ -215,8 +216,7 @@ for user in users:
 
 
 
-#DELETE ALL POSITIONS
-
+#DELETE ALL POSITIONS                              <=           DANGEOURUS
 """
 
 positions_coll = db["positions"]
@@ -224,11 +224,45 @@ positions_coll = db["positions"]
 
 results = positions_coll.delete_many({})
 
+<<<<<<< HEAD
 #Missing delete positions in USER ARRAY !!
 
 
 
+=======
+"""
+>>>>>>> 69306a65408db03ad6f29bfec28d5ab650af7884
 
+
+
+#Cancel each position INDIVIDUALLY !               <=   Les DANGEOURUS than UP
+
+"""
+positions_coll = db["positions"]
+positions = positions_coll.find()
+
+users_coll = db["users"]
+users = users_coll.find()
+
+
+for position in positions:
+    #print(position["_id"])
+    
+        
+    for user in users:
+        if len(user["Positions"]) > 0:
+            #print(user["Positions"])
+            
+            for index, _id in enumerate(user["Positions"]):
+                #print(index)
+                
+                if _id == position["_id"]:
+                    print("Got a position!")
+
+                    
+                    pos_del = users_coll.update_one( { "_id": user["_id"] }, { "$pull": { "Positions": position["_id"] } } )
+    
+    
 """
 
 
@@ -244,9 +278,12 @@ results = positions_coll.delete_many({})
 
 
 
+<<<<<<< HEAD
 
 
 
 
 
 
+=======
+>>>>>>> 69306a65408db03ad6f29bfec28d5ab650af7884
