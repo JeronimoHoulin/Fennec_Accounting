@@ -16,7 +16,7 @@ from web3.middleware import geth_poa_middleware
 
 
 os.getcwd()
-os.chdir('C:\\Users\\jeron\\OneDrive\\Desktop\\Fennec\\Accounting') #Your CWD
+os.chdir('C:/Users/jeron/OneDrive/Desktop/Fennec/Accounting') #Your CWD
 load_dotenv()
 
 infura_key = os.getenv('INFURA_TOKEN')
@@ -39,8 +39,8 @@ pub_key = signer.address
 
 
 #Addresses
-Admin_Address = '0xacd29f685c3bdf33588aa90bb65a69b4b098e62f'
-_to = Web3.toChecksumAddress('0xbF14e7d2Adb75066cc008fF1DCeb03F15B6eD74c')
+Admin_Address = '0xaCd29F685C3bDf33588Aa90Bb65A69B4b098e62F'
+_to = Web3.toChecksumAddress('')
 _from =Web3.toChecksumAddress(Admin_Address) 
 
 
@@ -70,7 +70,13 @@ w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 chain_id = 137 # Polygon Mumbai test chain
 nonce = w3.eth.getTransactionCount(_from)
-transfer_amt = int(2*1e6) #USDC has 6 decimals
+
+
+
+
+transfer_amt = int(10.1*1e6) #USDC has 6 decimals
+
+
 
 try:
     # creating a transaction
@@ -86,204 +92,11 @@ try:
 except Exception as err: 
     print('Transaction Error:',err)
 
-
+"""
 balAfter = erc20_contract.functions.balanceOf(pub_key).call()
 print('ERC20 Balance after:',w3.fromWei(balAfter,'ether'),'tokens')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-usdc_contract = w3.eth.contract(address=Web3.toChecksumAddress(
-'0x2791bca1f2de4661ed88a30c99a7a9449aa84174'), abi=erc20_abi)  ##USDC comtract address
-
-
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-
-
-
-
-
-#Addresses
-
-_to = Web3.toChecksumAddress(Admin_Address) # To address
-_from =Web3.toChecksumAddress('0xbF14e7d2Adb75066cc008fF1DCeb03F15B6eD74c') # From address
-
-
-nonce = w3.eth.get_transaction_count(_from)
-
-
 """
-transfer_txn = usdc_contract.functions.transferFrom(_from ,_to, int(2*1e6)).build_transaction({ 
-    'chainId': 137,
-    'gas': 45000,
-    'gasPrice': w3.eth.gas_price,
-    'nonce': nonce
-})
-
-
-"""
-
-
-#                                                  USDC AMOUNT * 6 DECIMALS
-transfer_txn = usdc_contract.functions.transfer(_to, int(2*1e6)).build_transaction({ 
-    'chainId': 137,
-    'gas': 35000,
-    'gasPrice': w3.eth.gasPrice,
-    'nonce': nonce,
-    'value': 0
-
-}) 
-
-
-gas = w3.eth.estimateGas(transfer_txn)
-
-
-
-
-"""
-
-
-#sining txn
-
-
-signed_txn = w3.eth.account.sign_transaction(transfer_txn, MM_Private_Key) 
-# sender's private key
-
-rawTxn = signed_txn.rawTransaction
-
-
-
-
-
-tx_hash=w3.eth.send_raw_transaction(rawTxn)
-w3.eth.wait_for_transaction_receipt(tx_hash)
-
-
-
-
-
-
-
-
-"""
-
-
-
-
-
-
-
-
-
-
 
 
 

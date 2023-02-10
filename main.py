@@ -18,6 +18,19 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 
+
+
+
+#MATURITY THAT HAS BEEN REACHED AND LIQUIDATED COMPLETELY:
+    
+Liquidated_Maturity = '2023-06-30 00:00:00'
+
+
+
+
+
+
+
 #Connecting to ENV file
 os.getcwd()
 #os.chdir('OneDrive/Desktop/Fennec/Accounting') #Your CWD
@@ -53,16 +66,19 @@ for user in users:
 ALL_POSITIONS = []
 
 for position in positions:
-    #print(position)
-    ALL_POSITIONS.append({
-        'User': position["user"],
-        'Capital': position["Capital"],
-        'dir': position["dir"]
-    })
+    if Liquidated_Maturity == str(position["Maturity"]):
+        
+        #print(position)
+        ALL_POSITIONS.append({
+            'User': position["user"],
+            'Capital': position["Capital"],
+            'dir': position["dir"],
+            'Maturity': position["Maturity"],
+            '_id': position["_id"]
+        })
     
     
     
-#print(ALL_POSITIONS)
 
 
 #GETTING MAX EXTRACTABLE VLAUE
@@ -201,12 +217,11 @@ for user in users:
                 )
                 
                     
-                #DELETING ALL POSITIONS IN THE MARKET
-                users_coll.update_one(
-                    {'_id': user["_id"] },
-                    {'$set': 
-                     {'Positions':[]}
-                    }
+                pos_del = users_coll.update_one( 
+                    { "_id": user["_id"] },
+                    { "$pull":
+                     { "Positions": pos["_id"] } 
+                     } 
                 )
                 
     
@@ -216,26 +231,28 @@ for user in users:
 
 
 
-#DELETE ALL POSITIONS                              <=           DANGEOURUS
-"""
-
-positions_coll = db["positions"]
-
-
-results = positions_coll.delete_many({})
-
-<<<<<<< HEAD
-#Missing delete positions in USER ARRAY !!
 
 
 
-=======
-"""
->>>>>>> 69306a65408db03ad6f29bfec28d5ab650af7884
 
 
 
-#Cancel each position INDIVIDUALLY !               <=   Les DANGEOURUS than UP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Cancel each position INDIVIDUALLY !               <=   OLD USE ABOVE
 
 """
 positions_coll = db["positions"]
@@ -260,7 +277,7 @@ for position in positions:
                     print("Got a position!")
 
                     
-                    pos_del = users_coll.update_one( { "_id": user["_id"] }, { "$pull": { "Positions": position["_id"] } } )
+                    #pos_del = users_coll.update_one( { "_id": user["_id"] }, { "$pull": { "Positions": position["_id"] } } )
     
     
 """
@@ -273,17 +290,22 @@ for position in positions:
 
 
 
+#DELETE ALL POSITIONS                              <=           DANGEOURUS
+"""
+
+positions_coll = db["positions"]
 
 
-
-
+results = positions_coll.delete_many({})
 
 <<<<<<< HEAD
-
-
-
+#Missing delete positions in USER ARRAY !!
 
 
 
 =======
->>>>>>> 69306a65408db03ad6f29bfec28d5ab650af7884
+"""
+
+
+
+
