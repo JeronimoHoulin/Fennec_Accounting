@@ -23,10 +23,7 @@ from pymongo import MongoClient
 
 #MATURITY THAT HAS BEEN REACHED AND LIQUIDATED COMPLETELY:
     
-Liquidated_Maturity = '2023-06-30 00:00:00'
-
-
-
+Liquidated_Maturity = '2023-09-29 00:00:00'
 
 
 
@@ -53,14 +50,6 @@ users = users_coll.find()
 #POSITIONS... note that OKX has an endpoint in Account=> GetPositions
 positions_coll = db["positions"]
 positions = positions_coll.find()
-
-"""
-for user in users:
-    #print(len(user["Positions"]))
-    if(len(user["Positions"])) > 0:
-        print("Your users: \n")
-        print(user["_id"])
-"""
 
 
 ALL_POSITIONS = []
@@ -106,18 +95,15 @@ exchange.apiKey = OKX_API_KEY
 exchange.secret = OKX_API_SECRET
 exchange.password = OKX_PASSPHRASE
 
-
 trading_balance = exchange.fetch_balance()
-
 
 #GETTING CURRENT USD VALUE
 USD_VALUE = 0
 
 for i in trading_balance["info"]["data"][0]["details"]:
-    if i["ccy"] == "USDC":
+    if i["ccy"] == "USDT":
         #print("USD!")
         USD_VALUE = float(i["availBal"])
-
 
 
 
@@ -153,52 +139,57 @@ while NEW_EXTRACTABLE > USD_VALUE:
 
 difference_lost = MAX_EXTRACTABLE - USD_VALUE
 
-print("Users are owed a total of: " + str(MAX_EXTRACTABLE) +"\n")
+print("Users are owed a total of: $" + str(round(MAX_EXTRACTABLE, 2)) +"\n")
 
-print("OKX account has a total of: " + str(USD_VALUE) +"\n")
+print("OKX account has a total of: $" + str(round(USD_VALUE,2)) +"\n")
 
-
-print("In this example, we have failed to generate a total of: " + str(difference_lost))
-
-print("Fennec can charge the above (in case it's negative)")
+if difference_lost > 0:
+    print("We have failed to generate a total of: " + str(round(difference_lost, 2)))
+else:
+    print("Fennec can charge a total of: $" + str(-round(difference_lost,2)))
 #this not working for 
 
-print("If = 0.0 then make sure all positions are closed and proceed with acounting.")
+print("(If = 0.0 then make sure all positions are closed and proceed with acounting.)")
 
 
 
 
 
 #THIS SETS THE CUT PERCENTAGE TO EACH USER.. DONT USE UNLESS AT A PROFIT OR VERY LOW LOSS AND PRINT RSTS
+
+if CUT_PRCT > 0:
+    for i in ALL_POSITIONS:
+        print(i["Capital"] * ( 1 + ( (i['dir']/100) * (1-CUT_PRCT) ) ))
+        i["FinalBalance"] = i["Capital"] * ( 1 + ( (i['dir']/100) * (1-CUT_PRCT) ) )
+    
+else:
+    for i in ALL_POSITIONS:
+        i["FinalBalance"] = i["Capital"] * ( 1 + ( (i['dir']/100) ) )
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+#MODIFY USERS table in mongo db BY FinalBalnace                                   <=           DANGEOURUS
+
+
 """
 
-for i in ALL_POSITIONS:
-    i["FinalBalance"] = i["Capital"] * ( 1 + ( (i['dir']/100) * (1-CUT_PRCT) ) )
-    
-    
-    
-"""
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-#MODIFY USERS table in mongo db BY FinalBalnace       <=           DANGEOURUS
 
-
-
-"""
 users_coll = db["users"]
 users = users_coll.find()
 
     
 for user in users:
-    #print(len(user["Positions"]))
+    #print(user["Available"])
+    alread_available = user["Available"]
     if(len(user["Positions"])) > 0:
         print("User ID: " + str(user["_id"]))
         
@@ -212,7 +203,7 @@ for user in users:
                 users_coll.update_one(
                     {'_id': user["_id"] },
                     {'$inc': 
-                     {'Available': pos["FinalBalance"]}
+                     {'Available': alread_available + pos["FinalBalance"]}
                     }
                 )
                 
@@ -223,88 +214,28 @@ for user in users:
                      { "Positions": pos["_id"] } 
                      } 
                 )
-                
-    
-
-"""
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Cancel each position INDIVIDUALLY !               <=   OLD USE ABOVE
-
-"""
+#DELETE POSITIONS
 positions_coll = db["positions"]
 positions = positions_coll.find()
 
-users_coll = db["users"]
-users = users_coll.find()
+for y in positions:
+    for pos in ALL_POSITIONS:
+        if y['_id'] == pos["_id"]:
+            #print(y['_id'])
+                            
+            pos_del = positions_coll.delete_one( 
+                { "_id": y["_id"] }
+            )
+    
 
 
-for position in positions:
-    #print(position["_id"])
-    
-        
-    for user in users:
-        if len(user["Positions"]) > 0:
-            #print(user["Positions"])
-            
-            for index, _id in enumerate(user["Positions"]):
-                #print(index)
-                
-                if _id == position["_id"]:
-                    print("Got a position!")
 
-                    
-                    #pos_del = users_coll.update_one( { "_id": user["_id"] }, { "$pull": { "Positions": position["_id"] } } )
-    
-    
+
+
 """
 
-
-
-
-
-
-
-
-
-#DELETE ALL POSITIONS                              <=           DANGEOURUS
-"""
-
-positions_coll = db["positions"]
-
-
-results = positions_coll.delete_many({})
-
-<<<<<<< HEAD
-#Missing delete positions in USER ARRAY !!
-
-
-
-=======
-"""
 
 
 
