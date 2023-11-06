@@ -23,8 +23,11 @@ from pymongo import MongoClient
 
 #MATURITY THAT HAS BEEN REACHED AND LIQUIDATED COMPLETELY:
     
-Liquidated_Maturity = '2023-09-29 00:00:00'
+Liquidated_Maturity = '2023-12-29'
 
+"""
+CHOOSE THE DATE AND RUN THE SCRIPT ONCE !!
+"""
 
 
 
@@ -55,9 +58,10 @@ positions = positions_coll.find()
 ALL_POSITIONS = []
 
 for position in positions:
-    if Liquidated_Maturity == str(position["Maturity"]):
+    maturity_date = str(position["Maturity"]).split(" ")[0]
+    if Liquidated_Maturity == maturity_date:
         
-        #print(position)
+        print(position)
         ALL_POSITIONS.append({
             'User': position["user"],
             'Capital': position["Capital"],
@@ -65,7 +69,6 @@ for position in positions:
             'Maturity': position["Maturity"],
             '_id': position["_id"]
         })
-    
     
     
 
@@ -180,7 +183,7 @@ else:
 #MODIFY USERS table in mongo db BY FinalBalnace                                   <=           DANGEOURUS
 
 
-"""
+
 
 
 users_coll = db["users"]
@@ -191,11 +194,11 @@ for user in users:
     #print(user["Available"])
     alread_available = user["Available"]
     if(len(user["Positions"])) > 0:
-        print("User ID: " + str(user["_id"]))
+        #print("User ID: " + str(user["_id"]))
         
         for pos in ALL_POSITIONS:
             if(user["_id"] == pos["User"]):
-                print("Found a position of his !")
+                #print("Found a position of his !")
                 
                 
                 #ADDING THE AVAILABLE + INTERESTS
@@ -203,7 +206,7 @@ for user in users:
                 users_coll.update_one(
                     {'_id': user["_id"] },
                     {'$inc': 
-                     {'Available': alread_available + pos["FinalBalance"]}
+                     {'Available': pos["FinalBalance"]}
                     }
                 )
                 
@@ -223,6 +226,7 @@ positions = positions_coll.find()
 for y in positions:
     for pos in ALL_POSITIONS:
         if y['_id'] == pos["_id"]:
+            #print("the position: ", y["_id"], " Will be deleted.")
             #print(y['_id'])
                             
             pos_del = positions_coll.delete_one( 
@@ -234,7 +238,7 @@ for y in positions:
 
 
 
-"""
+
 
 
 

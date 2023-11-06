@@ -12,6 +12,13 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 
+#Variable
+
+Liquidated_Maturity = '2023-09-29'
+
+
+
+
 #Connecting to ENV file
 os.getcwd()
 os.chdir('C:/Users/jeron/OneDrive/Desktop/Fennec/Accounting') #Your CWD
@@ -86,7 +93,6 @@ print("Fennec Total Locked: $" + str(fennec_total_locked))
 
 
 
-Liquidated_Maturity = '2023-09-29 00:00:00'
 
 print('\n\n\n')
 print("To-do at maturity: " + Liquidated_Maturity)
@@ -136,7 +142,7 @@ for user in users:
         
         for i in users_positions:
             
-            if str(i["Maturity"]) == Liquidated_Maturity:
+            if str(i["Maturity"]).split(" ")[0] == Liquidated_Maturity:
 
                 users_maturity_locked += i["Capital"]
                 users_maturity_interest += i["Capital"] * i["dir"]/100

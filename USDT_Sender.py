@@ -20,8 +20,8 @@ os.chdir('C:/Users/jeron/OneDrive/Desktop/Fennec/Accounting') #Your CWD
 load_dotenv()
 
 infura_key = os.getenv('INFURA_TOKEN')
-MM_Private_Key = os.getenv('ADMIN_MM_PRIVATE_KEY')        #THIS IS ADMINS! 
-
+MM_Private_Key = os.getenv('ADMIN_MM_PRIVATE_KEY')        #THIS IS ADMINS!  
+Admin_Address = os.getenv('ADMIN_ADDRESS')
 
 def send_to(to_adrs, usdt_amt):
         
@@ -39,8 +39,6 @@ def send_to(to_adrs, usdt_amt):
     
     
     
-    #Addresses
-    Admin_Address = '0xaCd29F685C3bDf33588Aa90Bb65A69B4b098e62F'
     _to = Web3.toChecksumAddress(str(to_adrs))
     _from =Web3.toChecksumAddress(Admin_Address) 
     
@@ -80,8 +78,10 @@ def send_to(to_adrs, usdt_amt):
     
     
     try:
-        # creating a transaction
-        transfer_txn = erc20_contract.functions.transfer(_to,transfer_amt).buildTransaction({ "chainId": chain_id, "from": _from, "nonce": nonce})
+        # creating a transaction                                          #DEPRICATED FOR build_transaction
+        transfer_txn = erc20_contract.functions.transfer(_to,transfer_amt).buildTransaction({ "chainId": chain_id,
+                                                                                             "from": _from,
+                                                                                             "nonce": nonce})
         # signing transaction with pvt key
         signed_tx = w3.eth.account.sign_transaction(transfer_txn, MM_Private_Key)
         # sending the transaction
